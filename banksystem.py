@@ -1,63 +1,72 @@
 import time
+def handle_login(username, password, user_db, save_callback):
+    if username not in user_db:
+        return false, 'username does not exist'
 
-def handle_login(username, password, users_db, save_callback):
+        # olub olmadigini yoxlayir
     
-
-    if username not in users_db:
-        return False, " Belə bir istifadəçi mövcud deyil!"
-
-    user = users_db[username]
+    user=users_db[username]
     current_time = time.time()
+    
+        # qisaldir
 
-    # 1. bloka dusmenin yoxlanmasi
-    if user.get("is_blocked", False):
-        print("\nMaximum login attempts exceeded.\nYour card has been blocked.\nPlease contact the bank administrator.")
-        return False, "CARD_BLOCKED"
+    if user.get('is_blocked ', false ):
+        print('\Maximum login attemp exceeded.\Your card has been blocked. \nPlease contact the bank administrator.')
+        return false, 'CARD_BLOCKED'
 
-    # 2. 60 saniyəlik vaxtin yoxlaması
-    lockout_until = user.get("lockout_until", 0.0)
+        # blakda olub olmadigini yoxlayir get=tehlukesizlik
+
+    lockout_time = user.get('lockout_time', 0.0)
+
     if current_time < lockout_until:
-        print("\nToo many failed login attempts.")
+        print('\Too many failed login attemps.')
         remaining = int(lockout_until - current_time)
-        
+
         while remaining > 0:
             mins, secs = divmod(remaining, 60)
-            print(f"\rPlease wait: {mins:02d}:{secs:02d}", end="", flush=True)
+
+        # divmod vaxti 60 la goturur 
+
+            print(f'\rPlease wait {mins:02d}:{secs:02d} ', end='', flush=true)
             time.sleep(1)
-            remaining -= 1
-        
-        print("\nPlease wait: 00:00\nYou may try again.\n")
-        user["lockout_until"] = 0.0
-        save_callback()
+            remaining -=1
 
-    # 3. parol yoxlaması
-    if password == user.get("password"):
-        user["failed_attempts"] = 0
-        user.update({"lockout_until": 0.0, "is_blocked": False})
-        save_callback()
-        return True, " Uğurla daxil oldunuz!"
+        # \r evvele qaytarir flush birbasa gosterir time.sleep 1 san gozle deyir
 
-    # 4. Şifrə səhvdirse, cəhdləri artırırıq
-    user["failed_attempts"] = user.get("failed_attempts", 0) + 1
-    attempts = user["failed_attempts"]
+        print('\nPlease wait : 00:00\nYou may try agan.\n')
+        user['lockout_time'] = 0.0
+        save_callback()
     
+    if password == user.get('password'):
+        user['failed_attempts'] = 0
+        user.update({'lockout_until' : 0.0, 'is_blocked' :false})
+        save_callback()
+        return true, 'login successful'
+    
+    user['failed_attempts'] = user.get('failed_attempts', 0) + 1
+    attemps = user['failed_attemps']
+
     print(f"Incorrect password. Attempt: {attempts}/6")
 
-    # 6 səhv olarsa
+    # f formated string di yeni tenzimleyir
+
     if attempts >= 6:
-        user["is_blocked"] = True
-        print("Maximum login attempts exceeded.\nYour card has been blocked.\nPlease contact the bank administrator.")
-    
-    # 3 səhv olarsa
-    elif attempts == 3:
-        user["lockout_until"] = time.time() + 60
+        user['is_blocked'] = true
+        print('Maximum login attemps exceeded.\nYour card has been blocked.\nPlease contact the bank administratior.')
+
+    elif attemps == 3:
+        user['lockout_until'] =time.time() + 60
         print("Too many failed login attempts.")
 
     save_callback()
-    return False, "INCORRECT_PASSWORD"   
+    return false, 'INCORRECT_PASSWORD'
 
-    # bax a buralar helem doldurulacaq
+    # CALLBACK SAXLAYIR
 
+
+
+
+# bax a buralar helem doldurulmalidir
 def show_main_menu(username):
     
     while True:
