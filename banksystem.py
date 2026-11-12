@@ -166,7 +166,7 @@ def register_user(username, password):
 
     users_data[username] = new_user
     with open("users.json", "w", encoding="utf-8") as file:
-        json.dump(user_data, file, ensure_ascii=False, indent=4)
+        json.dump(users_data, file, ensure_ascii=False, indent=4)
 
 
 
@@ -175,7 +175,77 @@ def register_user(username, password):
 
 
 
-    
+
+
+def change_password(username, user_db, save_callback):
+    print("\nchnage password")
+    current_pwd = input("Enter current password: ")
+
+    hashed_current = hashlib.sha256(current_pwd.encode('utf-8')).hexdigest()
+    if hashed_current != user_db[username].get('password'):
+        print('error: Current password is incorrect.')
+        return False
+
+    new_pwd = input("Enter new password(at least 8 symbols, one uppercase, one lowercase, one digit): "):
+    if len(new_pwd) < 8 or not any(c.isupper() for c in new_pwd) or not any(c.islower() for c in new_pwd) or not any(c.isdigit() for c in new_pwd):
+        print('error: New password does not meet the criteria.')
+        return False
+
+
+
+    if new_pwd == current_pwd:
+        print('error: New password cannot be the same as the current password.')
+        return False
+
+
+    confirm_pwd = input('please confirm new password again: ')
+    if new_pwd != confirm_pwd:
+        print('error: Passwords do not match.')
+        return False
+
+
+    hashed_new = hashlib.sha256(new_pwd.encode('utf-8')).hexdigest()
+    user_db[username]['password'] = hashed_new
+
+
+
+    try:
+        save_callback(user_db)
+    except TypeError:
+        save_callback()
+
+    print('Password changed successfully.')
+    return True
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         
 
 
