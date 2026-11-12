@@ -38,8 +38,10 @@ def create_default_data():
 
 def save_data(data):
     temp_file = DATA_FILE + ".tmp"
+
     with open(temp_file, "w") as f:
         json.dump(data, f, indent=2)
+
     os.replace(temp_file, DATA_FILE)
 
 
