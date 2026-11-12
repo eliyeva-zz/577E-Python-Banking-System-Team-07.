@@ -51,7 +51,7 @@ def handle_login(username, password, user_db, save_callback):
         return True, 'login successful'
     
     user['failed_attempts'] = user.get('failed_attempts', 0) + 1
-    attemps = user['failed_attempts']
+    attempts = user['failed_attempts']
 
     print(f"Incorrect password.\n Attempt: {attempts}/6")
 
@@ -62,13 +62,10 @@ def handle_login(username, password, user_db, save_callback):
         print('Maximum login attemps exceeded.\nYour card has been blocked.\nPlease contact the bank administratior.')
 
     elif attempts == 3:
-        user['lockout_until'] =time.time() + 60
+        user['lockout_time'] =time.time() + 60
         print("Too many failed login attempts.")
 
-    save_callback()
-    return False, 'INCORRECT_PASSWORD'
-
-    # CALLBACK SAXLAYIR
+    
 
 
 
@@ -165,6 +162,20 @@ def register_user(username, password):
                 users_data = json.load(file)
             except json.JSONDecodeError:
                 users_data = {}
+    
+
+    users_data[username] = new_user
+    with open("users.json", "w", encoding="utf-8") as file:
+        json.dump(user_data, file, ensure_ascii=False, indent=4)
+
+
+
+    print(f'successful registration: {username}')
+    return new_user
+
+
+
+    
         
 
 
