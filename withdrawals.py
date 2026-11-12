@@ -1,3 +1,23 @@
+def input_validation(accounts, amount_str):
+    """
+    girilen pulun valid olub olmadığını yoxlamaq üçün yazılan bir programdır.
+    """
+    try:
+        amount = float(amount_str)
+    except ValueError:
+        print("Error: Please enter a numeric value.")
+        return None
+    if "." in amount_str:
+        parts = amount_str.split(".")
+        if len(parts[1]) > 2:
+            print("Error: Maximum 2 decimal places allowed.")
+            return None
+    if amount <= 0:
+        print("Error: Amount must be positive.")
+        return None
+
+    return amount
+
 def withdraw_money(accounts, atm_cash):
     if accounts.get('blocked', False):
         print("Error: Your account is blocked, you cannot withdraw money.")
