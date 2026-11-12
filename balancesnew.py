@@ -10,8 +10,10 @@ def show_account_info(accounts):
     print(f"Available balance: {accounts.get('balance', 0.00):.2f} AZN")
     print("Account status: ", 'Blocked' if accounts.get('blocked', False) else 'Active')
 
+
 def show_balances(accounts):
     print(f"Available balance: {accounts.get('balance', 0.00):.2f} AZN")
+
 
 def input_validation(accounts, amount_str):
     """
@@ -66,6 +68,8 @@ def deposit_money(accounts):
 
     print(f"Successfully deposited {amount:.2f} AZN.")
     print(f"New balance: {accounts.get('balance', 0.00):.2f} AZN.")
-    
+
+
+
 
 
