@@ -155,6 +155,9 @@ def register_user(username, password):
         "is_blocked": False,
         "lockout_time": 0.0}
 
+
+        # blok vaxtina uygun olaraq qoyulub 0.0
+
     users_data = {}
     if os.path.exists("users.json"):
         with open("users.json", "r", encoding="utf-8") as file:
@@ -162,6 +165,9 @@ def register_user(username, password):
                 users_data = json.load(file)
             except json.JSONDecodeError:
                 users_data = {}
+
+        # evvelce yoxlayir json fayli varmi deye varsa read kecir , encoding utf-8 olmayan isareler ucunduwith is bitenden sora fayle avtomatik baglayir 
+
     
 
     users_data[username] = new_user
@@ -207,7 +213,7 @@ def change_password(username, user_db, save_callback):
     hashed_new = hashlib.sha256(new_pwd.encode('utf-8')).hexdigest()
     user_db[username]['password'] = hashed_new
 
-
+        # error almasinin qarsisini almaq unun lazimdir
 
     try:
         save_callback(user_db)
