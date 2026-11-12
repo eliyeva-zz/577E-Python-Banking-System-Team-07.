@@ -186,7 +186,7 @@ def change_password(username, user_db, save_callback):
         print('error: Current password is incorrect.')
         return False
 
-    new_pwd = input("Enter new password(at least 8 symbols, one uppercase, one lowercase, one digit): "):
+    new_pwd = input("Enter new password(at least 8 symbols, one uppercase, one lowercase, one digit): ") 
     if len(new_pwd) < 8 or not any(c.isupper() for c in new_pwd) or not any(c.islower() for c in new_pwd) or not any(c.isdigit() for c in new_pwd):
         print('error: New password does not meet the criteria.')
         return False
