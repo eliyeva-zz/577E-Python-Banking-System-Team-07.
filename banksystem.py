@@ -1,25 +1,29 @@
 import time
+
+
 def handle_login(username, password, user_db, save_callback):
     if username not in user_db:
-        return false, 'username does not exist'
+        return False, 'Username does not exist'
 
         # olub olmadigini yoxlayir
     
-    user=users_db[username]
+    user=user_db[username]
     current_time = time.time()
     
         # qisaldir
 
-    if user.get('is_blocked ', false ):
-        print('\Maximum login attemp exceeded.\Your card has been blocked. \nPlease contact the bank administrator.')
-        return false, 'CARD_BLOCKED'
+    if user.get('is_blocked', False ):
+        print('\nMaximum login attemp exceeded.\nYour card has been blocked. \nPlease contact the bank administrator.')
+        return False, 'CARD_BLOCKED'
 
         # blakda olub olmadigini yoxlayir get=tehlukesizlik
 
     lockout_time = user.get('lockout_time', 0.0)
+    lockout_until = lockout_time + 60
+
 
     if current_time < lockout_until:
-        print('\Too many failed login attemps.')
+        print('\nToo many failed login attemps.')
         remaining = int(lockout_until - current_time)
 
         while remaining > 0:
@@ -27,7 +31,7 @@ def handle_login(username, password, user_db, save_callback):
 
         # divmod vaxti 60 la goturur 
 
-            print(f'\rPlease wait {mins:02d}:{secs:02d} ', end='', flush=true)
+            print(f'\rPlease wait {mins:02d}:{secs:02d} ', end='', flush=True)
             time.sleep(1)
             remaining -=1
 
@@ -36,30 +40,33 @@ def handle_login(username, password, user_db, save_callback):
         print('\nPlease wait : 00:00\nYou may try agan.\n')
         user['lockout_time'] = 0.0
         save_callback()
+
+    hashed_password = hash_password(password)
+
     
-    if password == user.get('password'):
+    if hashed_password == user.get('password'):
         user['failed_attempts'] = 0
-        user.update({'lockout_until' : 0.0, 'is_blocked' :false})
+        user.update({'lockout_until' : 0.0, 'is_blocked' :False})
         save_callback()
-        return true, 'login successful'
+        return True, 'login successful'
     
     user['failed_attempts'] = user.get('failed_attempts', 0) + 1
-    attemps = user['failed_attemps']
+    attemps = user['failed_attempts']
 
-    print(f"Incorrect password. Attempt: {attempts}/6")
+    print(f"Incorrect password.\n Attempt: {attempts}/6")
 
     # f formated string di yeni tenzimleyir
 
     if attempts >= 6:
-        user['is_blocked'] = true
+        user['is_blocked'] = True
         print('Maximum login attemps exceeded.\nYour card has been blocked.\nPlease contact the bank administratior.')
 
-    elif attemps == 3:
+    elif attempts == 3:
         user['lockout_until'] =time.time() + 60
         print("Too many failed login attempts.")
 
     save_callback()
-    return false, 'INCORRECT_PASSWORD'
+    return False, 'INCORRECT_PASSWORD'
 
     # CALLBACK SAXLAYIR
 
@@ -67,13 +74,15 @@ def handle_login(username, password, user_db, save_callback):
 
 
 # bax a buralar helem doldurulmalidir
-def show_main_menu(username):
+def show_main_menu(username, user_db=None, save_callback=None):
+
+    # xeta vermesin deye
     
     while True:
         print("\n" + "=" * 36)
         print("PYTHON BANKING SYSTEM")
         print("=" * 36)
-        print(f"Welcome, {username}!")
+        print(f"welcome, {username}!")
         print("1. View Account Information")
         print("2. Check Balance")
         print("3. Deposit Money")
@@ -89,26 +98,94 @@ def show_main_menu(username):
         choice = input("Select an option: ").strip()
         
         if choice == '1':
-            print("\n View Account Information seçildi (Hələ yazılmayıb).")
+            print("\n View Account Information seçildi (Hələ yazilmayib).")
         elif choice == '2':
-            print("\n Check Balance seçildi (Hələ yazılmayıb).")
+            print("\n Check Balance seçildi (Hələ yazilmayib).")
         elif choice == '3':
-            print("\n Deposit Money seçildi (Hələ yazılmayıb).")
+            print("\n Deposit Money seçildi (Hələ yazilmayib).")
         elif choice == '4':
-            print("\n Withdraw Money seçildi (Hələ yazılmayıb).")
+            print("\n Withdraw Money seçildi (Hələ yazilmayib).")
         elif choice == '5':
-            print("\n Transfer Money seçildi (Hələ yazılmayıb).")
+            print("\n Transfer Money seçildi (Hələ yazilmayib).")
         elif choice == '6':
-            print("\n Transaction History seçildi (Hələ yazılmayıb).")
+            print("\n Transaction History seçildi (Hələ yazilmayib).")
         elif choice == '7':
-            print("\n Daily Limits seçildi (Hələ yazılmayıb).")
+            print("\n Daily Limits seçildi (Hələ yazilmayib).")
         elif choice == '8':
-            print("\n Change Password seçildi (Hələ yazılmayıb).")
+            if user_db and save_callback:
+                change_password(username, user_db, save_callback)
+            else:
+              print("\n Change password hele yoxdur ")
         elif choice == '9':
-            print("\n Hesabdan çıxış edilir (Logout)...")
-            return "LOGOUT"  # Giriş ekranına qayıtmaq üçün
+            print("\n Hesabdan çixiş edilir (Logout)...")
+            return 'LOGOUT'  
+
+        # girise qayitmaq ucun
+
         elif choice == '0':
-            print("\n Proqramdan çixilir. Sağ olun!")
-            exit() 
+            print('\n Exit...')
+            exit()
         else:
-            print("\n Yanliş seçim! Zəhmət olmasa 0-9 arasi rəqəm daxil edin.") 
+            print('\n Invalid option. Please try again.')
+
+ 
+
+    save_callback()
+    return False, "INCORRECT_PASSWORD"   
+
+
+
+
+    # password deyismeleri
+
+
+import json 
+import os
+import hashlib 
+
+# bu py da var hash lamaq ucundu bururlari inceele..........
+
+def register_user(username, password):
+    password_bytes = password.encode('utf-8')
+    hashed_password_text = hashlib.sha256(password_bytes).hexdigest()
+
+    # Kompüterlər mətnləri birbaşa başa düşmür, onları baytlara (1 və 0-lara) çevirməlidir. encode('utf-8') istifadəçinin daxil etdiyi mətni (məsələn, "Test@123") kompüterin oxuya biləcəyi bayt ardıcıllığına (bytes) çevirir.
+    #SHA-256 — bir tərəfli şifrələmə (hash) alqoritmidir.
+    new_user = {
+        "username": username,
+        "password": hashed_password_text,
+        "failed_attempts": 0,
+        "is_blocked": False,
+        "lockout_time": 0.0}
+
+    users_data = {}
+    if os.path.exists("users.json"):
+        with open("users.json", "r", encoding="utf-8") as file:
+            try:
+                users_data = json.load(file)
+            except json.JSONDecodeError:
+                users_data = {}
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
