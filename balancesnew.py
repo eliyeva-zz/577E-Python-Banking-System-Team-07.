@@ -13,6 +13,26 @@ def show_account_info(accounts):
 def show_balances(accounts):
     print(f"Available balance: {accounts.get('balance', 0.00):.2f} AZN")
 
+def input_validation(accounts, amount_str):
+    """
+    girilen pulun valid olub olmadığını yoxlamaq üçün yazılan bir programdır.
+    """
+    try:
+        amount = float(amount_str)
+    except ValueError:
+        print("Error: Please enter a numeric value.")
+        return None
+    if "." in amount_str:
+        parts = amount_str.split(".")
+        if len(parts[1]) > 2:
+            print("Error: Maximum 2 decimal places allowed.")
+            return None
+    if amount <= 0:
+        print("Error: Deposit must be positive.")
+        return None
+
+    return amount
+
 
 def deposit_money(accounts):
     if accounts.get('blocked', False):
