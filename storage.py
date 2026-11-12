@@ -45,7 +45,7 @@ def load_data():
         with open(DATA_FILE, "r") as f:
             return json.load(f)
     except (json.JSONDecodeError, OSError):
-        print("Data file is corrupted. Creating a new one.")
+        print("Data fayli oxunmadi. Kohne fayl saxlanildi ve yeni fayl yaradildi.")
         os.replace(DATA_FILE, DATA_FILE + ".broken")
         return None
 
