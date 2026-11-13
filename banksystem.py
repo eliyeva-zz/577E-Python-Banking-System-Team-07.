@@ -184,29 +184,29 @@ def register_user(username, password):
 
 
 def change_password(username, user_db, save_callback):
-    print("\nchnage password")
+    print("\nChange password")
     current_pwd = input("Enter current password: ")
 
     hashed_current = hashlib.sha256(current_pwd.encode('utf-8')).hexdigest()
     if hashed_current != user_db[username].get('password'):
-        print('error: Current password is incorrect.')
+        print('Error: Current password is incorrect.')
         return False
 
     new_pwd = input("Enter new password(at least 8 symbols, one uppercase, one lowercase, one digit): ") 
     if len(new_pwd) < 8 or not any(c.isupper() for c in new_pwd) or not any(c.islower() for c in new_pwd) or not any(c.isdigit() for c in new_pwd):
-        print('error: New password does not meet the criteria.')
+        print('Error: New password does not meet the criteria.')
         return False
 
 
 
     if new_pwd == current_pwd:
-        print('error: New password cannot be the same as the current password.')
+        print('Error: New password cannot be the same as the current password.')
         return False
 
 
     confirm_pwd = input('please confirm new password again: ')
     if new_pwd != confirm_pwd:
-        print('error: Passwords do not match.')
+        print('Error: Passwords do not match.')
         return False
 
 
