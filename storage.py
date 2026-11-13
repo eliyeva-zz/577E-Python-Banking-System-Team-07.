@@ -1,5 +1,7 @@
+
 import json
 import os
+
 from datetime import date, datetime
 
 DATA_FILE = "data.json"
@@ -14,13 +16,28 @@ def make_user(account_number, balance):
         "lockout_time": None,
         "daily": {
             "date": date.today().isoformat(),
-            "deposit": 0,   
+            "deposit": 0,
             "withdrawn": 0,
             "transfer_count": 0
         },
         "history": [],
     }
 
+
+
+
+def save_data(data):
+    temp_file = DATA_FILE + ".tmp"
+
+    with open(temp_file, "w") as f:
+        json.dump(data, f, indent=2)
+
+    os.replace(temp_file, DATA_FILE)
+
+
+
+if __name__ == "__main__":
+    print(get_data())
 def create_default_data():
     return{
         "atm_cash": 500000,
@@ -32,11 +49,7 @@ def create_default_data():
         },
     }
 
-def save_data(data):
-    temp_file = DATA_FILE + ".tmp"
-    with open(temp_file, "w") as f:
-        json.dump(data, f, indent=2)
-    os.replace(temp_file, DATA_FILE)
+
 
 def load_data():
     if not os.path.exists(DATA_FILE):
