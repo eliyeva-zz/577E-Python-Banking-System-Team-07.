@@ -41,7 +41,7 @@ def handle_login(username, password, user_db, save_callback):
         user['lockout_time'] = 0.0
         save_callback()
 
-    hashed_password = hash_password(password)
+    hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
 
     
     if hashed_password == user.get('password'):
@@ -65,15 +65,11 @@ def handle_login(username, password, user_db, save_callback):
         user['lockout_time'] =time.time() + 60
         print("Too many failed login attempts.")
 
-    
+    save_callback()
+    return False, "INCORRECT_PASSWORD"
 
-
-
-
-# bax a buralar helem doldurulmalidir
 def show_main_menu(username, user_db=None, save_callback=None):
-
-    # xeta vermesin deye
+    
     
     while True:
         print("\n" + "=" * 36)
@@ -95,43 +91,37 @@ def show_main_menu(username, user_db=None, save_callback=None):
         choice = input("Select an option: ").strip()
         
         if choice == '1':
-            print("\n View Account Information seçildi (Hələ yazilmayib).")
+            view_account_info(username, user_db)
         elif choice == '2':
-            print("\n Check Balance seçildi (Hələ yazilmayib).")
+            check_balance(username, user_db)
         elif choice == '3':
-            print("\n Deposit Money seçildi (Hələ yazilmayib).")
+            deposit_money(username, user_db, save_callback)
         elif choice == '4':
-            print("\n Withdraw Money seçildi (Hələ yazilmayib).")
+            withdraw_money(username, user_db, save_callback)
         elif choice == '5':
-            print("\n Transfer Money seçildi (Hələ yazilmayib).")
+            transfer_money(username, user_db, save_callback)
         elif choice == '6':
-            print("\n Transaction History seçildi (Hələ yazilmayib).")
+            show_history(username, user_db)
         elif choice == '7':
-            print("\n Daily Limits seçildi (Hələ yazilmayib).")
+            show_daily_limits(username, user_db)
         elif choice == '8':
             if user_db and save_callback:
                 change_password(username, user_db, save_callback)
             else:
-              print("\n Change password hele yoxdur ")
+                print("\nChange password parametrləri çatmır.")
         elif choice == '9':
-            print("\n Hesabdan çixiş edilir (Logout)...")
-            return 'LOGOUT'  
-
-        # girise qayitmaq ucun
-
+            print("\nHesabdan çıxış edilir (Logout)...")
+            return 'LOGOUT' 
         elif choice == '0':
-            print('\n Exit...')
+            print('\nSistemdən çıxılır. Sağ olun!')
             exit()
         else:
-            print('\n Invalid option. Please try again.')
-
- 
-
-    save_callback()
-    return False, "INCORRECT_PASSWORD"   
+            print('\nInvalid option. Please try again.')
+#mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
 
 
 
+#mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
 
     # password deyismeleri
 
