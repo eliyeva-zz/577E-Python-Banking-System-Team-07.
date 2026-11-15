@@ -5,10 +5,8 @@ LOCKOUT_SECONDS = 60
 MAX_ATTEMPTS = 6
 
 
-#hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
-
 def run_countdown(user, save_callback):
-    """Shows a visible 1-second countdown until lockout_until."""
+    
     print("\nToo many failed login attempts.")
     remaining = int(user["lockout_until"] - time.time())
     while remaining >= 0:
@@ -35,7 +33,8 @@ def handle_login(username, password, user_db, save_callback):
         print("Please contact the bank administrator.")
         return False, "CARD_BLOCKED"
 
-    # a lockout saved in the file survives restart
+    #  lockout save in the file surviv restart
+
     if time.time() < user.get("lockout_until", 0.0):
         run_countdown(user, save_callback)
 
@@ -59,7 +58,10 @@ def handle_login(username, password, user_db, save_callback):
 
     if attempts == 3:
         user["lockout_until"] = time.time() + LOCKOUT_SECONDS
-        save_callback() # saved first, so restart cannot skip the wait
+        save_callback()
+        
+         # save first
+        
         run_countdown(user, save_callback)
 
     save_callback()

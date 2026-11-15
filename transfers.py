@@ -60,14 +60,12 @@ def transfer_money(data, sender_username):
     recipient["balance"] += amount
     daily["transfer_count"] += 1
 
-    record_transaction(data, sender_username, "Transfer Sent", -amount,
-                       sender_before, sender["balance"],
-                       other_account=recipient["account_number"], save=False)
-    record_transaction(data, recipient_username, "Transfer Received", amount,
-                       recipient_before, recipient["balance"],
-                       other_account=sender["account_number"], save=False)
+    record_transaction(data, sender_username, "Transfer Sent", -amount, sender_before, sender["balance"], other_account=recipient["account_number"], save=False)
+    record_transaction(data, recipient_username, "Transfer Received", amount, recipient_before, recipient["balance"], other_account=sender["account_number"], save=False)
 
-    save_data(data) # both balances saved together
+    save_data(data) 
+    
+    # both balances saved together
 
     print("\nTransfer successful.")
     print("Sender new balance:", format_azn(sender["balance"]), "AZN")

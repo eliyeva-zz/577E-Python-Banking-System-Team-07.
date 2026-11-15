@@ -1,11 +1,11 @@
 from datetime import datetime
 from storage import save_data
 
-def record_transaction(data, username, transaction_type, amount,
-                       balance_before, balance_after, fee=0,
-                       other_account=None, save=True):
+def record_transaction(data, username, transaction_type, amount, balance_before, balance_after, fee=0, other_account=None, save=True):
 
     transaction_id = f"TXN{data['next_txn_number']:04d}"
+
+# tari=metn edir bu %
 
     transaction = {
         "id": transaction_id,
@@ -23,21 +23,6 @@ def record_transaction(data, username, transaction_type, amount,
 
     if save:
         save_data(data)
-
-
-
-
-
-
-
-
-
-
-
-
-#kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-
-
 
 from limits2 import format_azn
 

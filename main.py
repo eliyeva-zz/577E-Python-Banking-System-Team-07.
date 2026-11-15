@@ -14,7 +14,8 @@ def do_deposit(data, username):
     before = user["balance"]
     data["atm_cash"] = deposit_money(user, data["atm_cash"])
     after = user["balance"]
-    if after != before: # only successful deposits are recorded
+    if after != before: 
+
         record_transaction(data, username, "Deposit", after - before, before, after)
     else:
         save_data(data)

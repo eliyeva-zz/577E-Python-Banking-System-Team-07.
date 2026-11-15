@@ -2,7 +2,7 @@ from limits2 import DAILY_DEPOSIT_MAX, check_reset_daily_limits, format_azn
 
 
 def show_account_info(username, user):
-    """username data["users"] sozlugunun acarindan gelir (user icinde yazmir)."""
+    
     print(f"Account Holder : {username}")
     print(f"Account Number : {user['account_number']}")
     print(f"Available Balance: {format_azn(user['balance'])} AZN")
@@ -14,16 +14,15 @@ def show_balances(user):
 
 
 def input_validation(amount_str):
-    """Girilen miqdar valid olsa qepik (int) dondurur, degilse None.
-    Meselen: "12.5" -> 1250, "100" -> 10000, "0.29" -> 29
-    Deposit ve withdraw ikisi de bunu isledir."""
+  
     amount_str = amount_str.strip()
 
     if amount_str.startswith("-"):
         print("Error: Amount must be positive.")
         return None
 
-    # sadece reqem ve en coxu 1 noqte olabiler(herf, bosluq, bos giris reddedilir)
+    # sadece reqem ve en coxu 1 noqte olabiler
+
     if not amount_str.replace(".", "", 1).isdecimal():
         print("Error: Please enter a numeric value.")
         return None
@@ -33,10 +32,12 @@ def input_validation(amount_str):
         print("Error: Maximum 2 decimal places allowed.")
         return None
 
-    # Yazidan direkt qepik cevir (float isletmirik)
+    # Yazidan qepik cevir 
+
+
     qepik = int(parts[0] or "0") * 100
     if len(parts) == 2:
-        qepik += int(parts[1].ljust(2, "0"))  # "5" -> "50", "05" -> "05"
+        qepik += int(parts[1].ljust(2, "0")) 
 
     if qepik <= 0:
         print("Error: Amount must be positive.")
@@ -46,7 +47,7 @@ def input_validation(amount_str):
 
 
 def deposit_money(user, atm_cash):
-    """Para yatirilir. Hem user["balance"] hem ATM kasasi artar. Yeni atm_cash return eliyir (qepik)."""
+    
     if user['blocked']:
         print("Error: Your account is blocked, you cannot deposit money.")
         return atm_cash
