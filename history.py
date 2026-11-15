@@ -25,27 +25,54 @@ def record_transaction(data, username, transaction_type, amount,
         save_data(data)
 
 
-def show_transaction_history(data, username):
 
+
+
+
+
+
+
+
+
+
+#kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+
+
+
+from limits2 import format_azn
+
+
+def show_transaction_history(data, username):
     history = data["users"][username]["history"]
 
     if not history:
-        print("Transaction history is empty.")
+        print("No transactions found.")
         return
 
-    print("\n========== Transaction History ==========")
-
-    for transaction in history[-10:]:
+    print("\n========== TRANSACTION HISTORY ==========")
+    for t in history[-10:]:
         print("-----------------------------------------")
-        print("ID:", transaction["id"])
-        print("Date:", transaction["date"])
-        print("Type:", transaction["type"])
-        print("Amount:", transaction["amount"])
-        print("Balance Before:", transaction["balance_before"])
-        print("Balance After:", transaction["balance_after"])
-        print("Fee:", transaction["fee"])
-
-        if transaction["other_account"] is not None:
-            print("Other Account:", transaction["other_account"])
-
+        print("ID:", t["id"])
+        print("Date:", t["date"])
+        print("Type:", t["type"])
+        if t["other_account"] is not None:
+            label = "Recipient account" if t["type"] == "Transfer Sent" else "Sender account"
+            print(f"{label}:", t["other_account"])
+        print("Amount:", format_azn(t["amount"]), "AZN")
+        if t["fee"]:
+            print("Fee:", format_azn(t["fee"]), "AZN")
+        print("Balance before:", format_azn(t["balance_before"]), "AZN")
+        print("Balance after:", format_azn(t["balance_after"]), "AZN")
     print("-----------------------------------------")
+
+
+
+
+
+
+
+
+
+
+
+

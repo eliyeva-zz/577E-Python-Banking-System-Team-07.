@@ -5,16 +5,19 @@ LOCKOUT_SECONDS = 60
 MAX_ATTEMPTS = 6
 
 
+#hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+
 def run_countdown(user, save_callback):
     """Shows a visible 1-second countdown until lockout_until."""
     print("\nToo many failed login attempts.")
     remaining = int(user["lockout_until"] - time.time())
     while remaining >= 0:
         mins, secs = divmod(remaining, 60)
-        print(f"\rPlease wait: {mins:02d}:{secs:02d}", end="", flush=True)
-        time.sleep(1)
+        print(f"Please wait: {mins:02d}:{secs:02d}")
+        if remaining > 0:
+            time.sleep(1)
         remaining -= 1
-    print("\nYou may try again.\n")
+    print("You may try again.\n")
     user["lockout_until"] = 0.0
     save_callback()
 

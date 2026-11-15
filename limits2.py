@@ -7,9 +7,18 @@ FEE_PERCENT = 2  # %2
 DAILY_TRANSFER_MAX = 5
 
 
+#ffffffffffffffffffffffffffffffffffffff
+
+
 def format_azn(qepik):
-    """qepik ekranda gostermek icin AZN'ye cevirir: 250000 -> '2500.00'"""
-    return f"{qepik // 100}.{qepik % 100:02d}"
+    
+    sign = "-" if qepik < 0 else ""
+    qepik = abs(qepik)
+    return f"{sign}{qepik // 100}.{qepik % 100:02d}"
+
+
+
+
 
 
 def check_reset_daily_limits(user):

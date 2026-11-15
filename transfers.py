@@ -1,124 +1,73 @@
-
-from datetime import date
-from decimal import Decimal, InvalidOperation
-
 from storage import save_data
 from history import record_transaction
+from deposit import input_validation
+from limits2 import format_azn, check_reset_daily_limits, DAILY_TRANSFER_MAX
 
 
 def transfer_money(data, sender_username):
-
     users = data["users"]
-
-    if sender_username not in users:
-        print("Göndərən istifadəçi tapılmadı!")
-        return
-
     sender = users[sender_username]
 
-    recipient_account = input("Alıcının hesab nömrəsini daxil edin: ")
+    check_reset_daily_limits(sender)
+    daily = sender["daily"]
+
+    print("\n--- TRANSFER MONEY ---")
+    recipient_account = input("Enter recipient account number: ").strip()
 
     recipient_username = None
-
-    for username, user in users.items():
+    for name, user in users.items():
         if user["account_number"] == recipient_account:
-            recipient_username = username
+            recipient_username = name
             break
 
     if recipient_username is None:
-        print("Alıcı hesab tapılmadı!")
+        print("Error: Recipient account not found.")
         return
 
     if recipient_username == sender_username:
-        print("Öz hesabınıza pul köçürə bilməzsiniz!")
+        print("Error: You cannot transfer money to your own account.")
         return
 
     recipient = users[recipient_username]
 
-    amount_input = input("Köçürüləcək məbləği daxil edin (AZN): ")
-
-    try:
-        amount_decimal = Decimal(amount_input)
-
-        if not amount_decimal.is_finite():
-            print("Yanlış məbləğ!")
-            return
-
-        if amount_decimal <= 0:
-            print("Məbləğ sıfırdan böyük olmalıdır!")
-            return
-
-        if amount_decimal.as_tuple().exponent < -2:
-            print("Maksimum 2 onluq rəqəm daxil edə bilərsiniz!")
-            return
-
-    except InvalidOperation:
-        print("Zəhmət olmasa düzgün məbləğ daxil edin!")
+    amount = input_validation(input("Enter amount to transfer (AZN): "))
+    if amount is None:
         return
-
-    amount = int(amount_decimal * 100)
 
     if sender["balance"] < amount:
-        print("Balansınızda kifayət qədər pul yoxdur!")
+        print("Error: Insufficient funds.")
         return
 
-    daily = sender["daily"]
-    today = date.today().isoformat()
-
-    if daily["date"] != today:
-        daily["date"] = today
-        daily["deposit"] = 0
-        daily["withdrawn"] = 0
-        daily["transfer_count"] = 0
-
-        save_data(data)
-
-    if daily["transfer_count"] >= 5:
-        print("Gündəlik 5 transfer limitiniz bitib!")
+    if daily["transfer_count"] >= DAILY_TRANSFER_MAX:
+        print(f"Error: Daily limit of {DAILY_TRANSFER_MAX} outgoing transfers reached.")
         return
 
     print("\n========== TRANSFER DETAILS ==========")
     print("Sender:", sender_username)
+    print("Recipient account:", recipient_account)
     print("Recipient:", recipient_username)
-    print("Amount:", amount_decimal, "AZN")
+    print("Amount:", format_azn(amount), "AZN")
 
     confirmation = input("Confirm transfer (Y/N): ").strip().upper()
-
     if confirmation != "Y":
-        print("Transfer cancelled!")
+        print("Transfer cancelled.")
         return
 
-    sender_balance_before = sender["balance"]
-    recipient_balance_before = recipient["balance"]
+    sender_before = sender["balance"]
+    recipient_before = recipient["balance"]
 
     sender["balance"] -= amount
     recipient["balance"] += amount
-
     daily["transfer_count"] += 1
 
-    record_transaction(
-        data,
-        sender_username,
-        "Transfer Sent",
-        amount,
-        sender_balance_before,
-        sender["balance"],
-        other_account=recipient["account_number"],
-        save=False
-    )
+    record_transaction(data, sender_username, "Transfer Sent", -amount,
+                       sender_before, sender["balance"],
+                       other_account=recipient["account_number"], save=False)
+    record_transaction(data, recipient_username, "Transfer Received", amount,
+                       recipient_before, recipient["balance"],
+                       other_account=sender["account_number"], save=False)
 
-    record_transaction(
-        data,
-        recipient_username,
-        "Transfer Received",
-        amount,
-        recipient_balance_before,
-        recipient["balance"],
-        other_account=sender["account_number"],
-        save=False
-    )
+    save_data(data) # both balances saved together
 
-    save_data(data)
-
-    print("\nTransfer successful!")
-    print("Sender new balance:", sender["balance"] / 100, "AZN")
+    print("\nTransfer successful.")
+    print("Sender new balance:", format_azn(sender["balance"]), "AZN")
